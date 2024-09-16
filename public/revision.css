@@ -1,0 +1,163 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Times New Roman', serif;
+}
+
+html, body {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    height: 100vh;
+    font-family: sans-serif;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+i:hover {
+    cursor: pointer;
+}
+
+/* -------------------------navbar------------------------- */
+
+.navbar {
+    flex-basis: 10%;
+    background: #96B6C5;
+    position: relative;
+}
+
+.navbar > i {
+   margin: 5px 10px;
+}
+
+/* ---------------------progressBar---------------------- */
+
+.progressbar {
+    position: absolute;
+    left: 50%;
+    top: 75%;
+    transform: translate(-50%, -50%);
+    width: 40%;
+    height: 16px;
+    border-radius: 16px;       
+    background: #eeeeee;
+}
+
+.progress {
+    width: 0%;
+    height: 100%;
+    border-radius: 16px;
+    background-color: #6ECB63;
+}
+
+/* -----------------------------flashcard---------------------- */
+
+.flashcard {
+    display: flex;
+    flex-basis: 25%;
+    background: #5d2fe8;
+    justify-content: center;
+    align-items: center;
+}
+
+.flashcard > h1 {
+    color: #fff;
+    font-size: 40px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.kanji-question {
+    background: #149b94;
+}
+
+.vocab-question {
+    background: #5d2fe8;
+}
+
+/* ---------------------------question---------------------- */
+
+.question {
+    display: flex;
+    flex-basis: 10%;
+    background: #000;
+    justify-content: center;
+    align-items: center;
+}
+
+.question > h1 {
+    color: #fff;
+    font-size: 36px;
+    margin: 0;
+    font-weight: 500;
+}
+
+.meaning-question {
+    background: #e6e6e6;
+}
+
+.reading-question {
+    background: #000;
+}
+
+/* ----------------------------answer---------------------- */
+
+.answer {
+    display: flex;
+    flex-basis: 15%;
+    background: #EEE0C9;
+    justify-content: center;
+    align-items: center;
+}
+
+form, input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100vh;
+    margin: 0 5px;
+    height: 60%;
+}
+
+input {
+    border-radius: 8px;
+    border: 2px solid #000;
+    font-size: 30px;
+}
+
+/* ---------------------------stats--------------------------- */
+
+.stats{
+    display: flex;
+    flex-basis: 40%;
+    justify-content: space-around;
+    align-items: center;
+    background: #ADC4CE;
+}
+
+.kanji, .vocab {
+    width: 40%;
+    height: 40%;
+    background: #F1F0E8;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.kanji > h1, .vocab > h1 {
+    margin: 0;
+    margin-top: 5%;
+}
+
+.kanji > h2, .vocab > h2 {
+    margin: 0;
+    margin-top: 2%;
+    font-size: 24px;
+    font-weight: 300;
+}

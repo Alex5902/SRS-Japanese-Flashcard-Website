@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home page</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <div class="container">
+        <div class="banner">
+            <h1>Welcome to N2 Kanji</h1>
+            <div class="login"></div>
+        </div>
+        <div class="non-banner">
+            <div class="sidepanel"><h2>Today's Schedule</h2>
+                <div class="forecast">
+                    <!-- <div class="row"><div class="times">1am</div><div class="bar">555555555555555555</div><div class="added">+25</div><div class="total">137</div></div>
+                    <div class="row"><div class="times">12am</div><div class="bar">555555555555555555</div><div class="added">+35</div><div class="total">154</div></div> -->
+                </div>
+            </div>
+            <div class="mainpanel">
+                <div class="main">
+                    <div class="review"><h2>Review</h2><h3>0</h3></div>
+                    <div class="new-words"><h2>New words</h2><h3>0</h3></div>
+                </div>
+                <div class="stats">
+                    <div class="level novice"><h2></h2><h3>Novice</h3></div>
+                    <div class="level familiar"><h2></h2><h3>Familiar</h3></div>
+                    <div class="level competent"><h2></h2><h3>Competent</h3></div>
+                    <div class="level proficient"><h2></h2><h3>Proficient</h3></div>
+                    <div class="level master"><h2></h2><h3>Master</h3></div>
+                </div>
+                <!-- <div class="groups"> -->
+                <div class="message">
+                    <!-- <div class="set n3 current"><h3>1</h3><p>set</p></div>
+                    <div class="set n3"><h3>2</h3><p>set</p></div> -->
+                    <h1></h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="header-container">
+                <h2 id="loginHeader" class="active">Login</h2>
+                <h2 id="signupHeader">Sign Up</h2>
+            </div>
+    
+            <!-- Login Form -->
+            <form id="loginForm" class="form-container">
+                <input type="text" placeholder="Username" id="username" name="username" autocomplete="off" required>
+
+                <input type="password" placeholder="Password" id="password" name="password" autocomplete="off" required>
+    
+                <p id="error-message-login"></p>
+                <button class="login" type="submit">Login</button>
+            </form>
+    
+            <!-- Sign Up Form (Initially Hidden) -->
+            <form id="signupForm" class="form-container" style="display:none;">
+                <input type="text" placeholder="Username" id="newUsername" name="newUsername" autocomplete="off" required>
+    
+                <input type="password" placeholder="Password" id="newPassword" name="newPassword" autocomplete="off" required>
+    
+                <input type="password" placeholder="Confirm Password" id="confirmPassword" name="confirmPassword" autocomplete="off" required>
+
+                <p id="error-message"></p>
+                <button class="signup" type="submit">Sign Up</button>
+            </form>
+        </div>
+    </div>
+     
+    <script src="home.js"></script>
+</body>
+</html>
