@@ -551,7 +551,8 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    console.log(`user check ${userCheck.rows}`);
+    console.log(`username: ${username} password: ${password}`);
+    console.log(`user check: ${userCheck.rows[0]}`);
 
     const hashedPassword = userCheck.rows[0].hashed_password;
     const match = await bcrypt.compare(password, hashedPassword);
