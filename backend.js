@@ -550,6 +550,9 @@ app.post("/login", async (req, res) => {
     if (userCheck.rows.length === 0) {
       return res.status(400).json({ message: "User not found" });
     }
+
+    console.log(`user check ${userCheck.rows}`);
+
     const hashedPassword = userCheck.rows[0].hashed_password;
     const match = await bcrypt.compare(password, hashedPassword);
     if (match) {
