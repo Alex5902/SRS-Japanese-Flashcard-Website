@@ -11,7 +11,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const db = new pg.Client({
     user: process.env.DB_USER,
@@ -19,6 +19,9 @@ const db = new pg.Client({
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    ssl: {
+      rejectUnauthorized: false
+  }
 });
 
 db.connect();
