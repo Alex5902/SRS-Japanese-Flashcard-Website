@@ -552,7 +552,8 @@ app.post("/login", async (req, res) => {
     }
 
     console.log(`username: ${username} password: ${password}`);
-    console.log(`user check: ${userCheck.rows[0]}`);
+    console.log(`user check: ${userCheck.rows[0].current_level}`);
+    console.log(`user check: ${userCheck.rows[0].username}`);
 
     const hashedPassword = userCheck.rows[0].hashed_password;
     const match = await bcrypt.compare(password, hashedPassword);
