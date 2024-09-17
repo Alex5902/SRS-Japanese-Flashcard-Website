@@ -97,6 +97,9 @@ app.get("/numberOfNewCards", async (req, res) => {
   try {
     currentUser = req.session.userId;
     currentUserLevel = req.session.userLevel;
+
+    console.log(`currentuser: ${currentUser}`);
+    console.log(`currentuserlevel: ${currentUserLevel}`);
     let result = await checkCards();
     const numberOfCards = result && result.rows ? result.rows.length : 0;
 
