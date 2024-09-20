@@ -9,6 +9,7 @@ import { DateTime } from "luxon";
 import dotenv from "dotenv";
 import Redis from "ioredis";
 import connectRedis from "connect-redis";
+import RedisStore from 'connect-redis'; 
 
 dotenv.config();
 
@@ -47,12 +48,12 @@ app.get("/", (req, res) => {
 // }));
 
 // Redis Setup
-// const RedisStore = connectRedis(session);
 const redisClient = new Redis({
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
-    // password: process.env.REDIS_PASSWORD,
 });
+
+// const RedisStore = connectRedis(session);
 
 // Configure session to use Redis store
 app.use(session({
