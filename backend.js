@@ -483,6 +483,7 @@ async function cardLevels(currentUser) {
 }
 
 app.get('/levels', async (req, res) => {
+  console.log("Session ID in /levels:", req.sessionID);
   console.log("Session data levels:", req.session);
   const currentUser = req.session.userId;
   const currentUserLevel = req.session.userLevel;
