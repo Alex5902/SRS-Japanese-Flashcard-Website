@@ -77,6 +77,7 @@ redisClient.set(testKey, 'Hello, Redis!')
     });
 
 app.get("/api/isLoggedIn", (req, res) => {
+  console.log("Session data apilogin:", req.session);
   if (req.session.userId) {
       res.json({ isLoggedIn: true, username: req.session.username });
   } else {
@@ -111,6 +112,7 @@ async function cardsForReview(currentUser, userTimeZone) {
 
 app.get("/numberOfReviewCards", async (req, res) => {
   try {
+    console.log("Session data numberofreviewcards:", req.session);
     const currentUser = req.session.userId;
     const currentUserLevel = req.session.userLevel;
     const userTimeZone = req.session.userTimeZone;
@@ -127,7 +129,7 @@ app.get("/numberOfReviewCards", async (req, res) => {
 
 app.get("/numberOfNewCards", async (req, res) => {
   try {
-    console.log(`numberofnewcards session ${req.session}`);
+    console.log("Session data numberofnewcards:", req.session);
     const currentUser = req.session.userId;
     const currentUserLevel = req.session.userLevel;
 
@@ -479,6 +481,7 @@ async function cardLevels(currentUser) {
 }
 
 app.get('/levels', async (req, res) => {
+  console.log("Session data levels:", req.session);
   const currentUser = req.session.userId;
   const currentUserLevel = req.session.userLevel;
   const levelsCount = await cardLevels(currentUser);
