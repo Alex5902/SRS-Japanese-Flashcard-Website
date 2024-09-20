@@ -602,12 +602,27 @@ app.post("/login", async (req, res) => {
       req.session.userId = userCheck.rows[0].user_id;
       req.session.userLevel = userCheck.rows[0].current_level;
       req.session.username = username;
-      req.session.save((err) => {
+      req.session.save(async (err) => {
         if (err) {
-            console.error("Session save error:", err);
-            return res.status(500).json({ message: "Server error" });
+          console.error("Session save error:", err);
+          return res.status(500).json({ message: "Server error" });
         }
+
         console.log("Session data:", req.session);
+        const sessionId = `sess:${req.sessionID}`;
+        console.log("Session ID:", sessionId);
+
+        // Check Redis directly to see if the session data is stored
+        try {
+          const sessionData = await redisClient.get(sessionId);
+          if (sessionData) {
+            console.log("Session stored in Redis:", sessionData);
+          } else {
+            console.log("Session not found in Redis.");
+          }
+        } catch (redisError) {
+          console.error("Error querying Redis:", redisError);
+        }
         res.status(200).json({ message: "Login successful" });
     });
       // res.status(200).json({ message: "Login successful" });
