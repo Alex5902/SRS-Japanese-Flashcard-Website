@@ -8,7 +8,6 @@ import session from "express-session";
 import { DateTime } from "luxon";
 import dotenv from "dotenv";
 import Redis from "ioredis";
-import connectRedis from "connect-redis";
 import RedisStore from 'connect-redis'; 
 
 dotenv.config();
@@ -40,21 +39,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "home.html"));
 });
 
-// app.use(session({
-//   secret: process.env.SESSION_SECRET,
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: { secure: true } 
-// }));
-
-// Redis Setup
-// const redisClient = new Redis({
-//     host: process.env.REDIS_HOST,
-//     port: process.env.REDIS_PORT,
-// });
 const redisClient = new Redis(process.env.REDIS_URL);
-
-// const RedisStore = connectRedis(session);
 
 // Configure session to use Redis store
 app.use(session({
@@ -66,6 +51,29 @@ app.use(session({
     secure: process.env.NODE_ENV == 'production',
   }
 }));
+
+redisClient.ping()
+    .then((result) => {
+        console.log('Redis is connected:', result);
+    })
+    .catch((error) => {
+        console.error('Redis connection error:', error);
+    });
+
+// Test setting and getting a value to check persistence
+const testKey = 'test_key';
+redisClient.set(testKey, 'Hello, Redis!')
+    .then(() => {
+        return redisClient.get(testKey);
+    })
+    .then((value) => {
+        console.log('Value from Redis:', value);
+        // Clean up after test
+        redisClient.del(testKey);
+    })
+    .catch((error) => {
+        console.error('Error during Redis test:', error);
+    });
 
 app.get("/api/isLoggedIn", (req, res) => {
   if (req.session.userId) {
