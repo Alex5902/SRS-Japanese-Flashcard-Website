@@ -44,7 +44,7 @@ const redisClient = new Redis(process.env.REDIS_URL);
 
 // Configure session to use Redis store
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
+  store: new RedisStore({ client: redisClient, ttl: 86400 }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
