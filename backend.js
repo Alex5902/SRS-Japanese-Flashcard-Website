@@ -39,15 +39,15 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "home.html"));
 });
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: true } 
-}));
+// app.use(session({
+//   secret: process.env.SESSION_SECRET,
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: { secure: true } 
+// }));
 
 // Redis Setup
-const RedisStore = new (connectRedis(session));
+const RedisStore = connectRedis(session);
 const redisClient = new Redis({
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
@@ -56,12 +56,12 @@ const redisClient = new Redis({
 
 // Configure session to use Redis store
 app.use(session({
-  store: new RedisStore({ client: redisClient }), 
+  store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false, 
+  saveUninitialized: false,
   cookie: {
-      secure: process.env.NODE_ENV === 'production', 
+    secure: process.env.NODE_ENV == 'production',
   }
 }));
 
