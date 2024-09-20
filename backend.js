@@ -39,6 +39,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "home.html"));
 });
 
+console.log('Connecting to Redis at:', process.env.REDIS_URL);
 const redisClient = new Redis(process.env.REDIS_URL);
 
 // Configure session to use Redis store
@@ -595,6 +596,7 @@ app.post("/login", async (req, res) => {
       req.session.userId = userCheck.rows[0].user_id;
       req.session.userLevel = userCheck.rows[0].current_level;
       req.session.username = username;
+      console.log("Session data:", req.session);
       res.status(200).json({ message: "Login successful" });
     } else {
       return res.status(400).json({ message: "Invalid credentials" });
