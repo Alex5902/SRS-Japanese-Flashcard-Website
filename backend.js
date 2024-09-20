@@ -48,10 +48,11 @@ app.get("/", (req, res) => {
 // }));
 
 // Redis Setup
-const redisClient = new Redis({
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-});
+// const redisClient = new Redis({
+//     host: process.env.REDIS_HOST,
+//     port: process.env.REDIS_PORT,
+// });
+const redisClient = new Redis(process.env.REDIS_URL);
 
 // const RedisStore = connectRedis(session);
 
