@@ -462,7 +462,7 @@ app.post('/answer', async (req, res) => {
     }
   });
 
-async function cardLevels() {
+async function cardLevels(currentUser) {
   const resultNovice = await db.query(`SELECT * FROM progress WHERE levels IN (1, 2, 3, 4) AND user_id = $1`, [currentUser]);
   const resultFamiliar = await db.query(`SELECT * FROM progress WHERE levels IN (5, 6) AND user_id = $1`, [currentUser]);
   const resultCompetent = await db.query(`SELECT * FROM progress WHERE levels = 7 AND user_id = $1`, [currentUser]);
@@ -479,9 +479,9 @@ async function cardLevels() {
 }
 
 app.get('/levels', async (req, res) => {
-  currentUser = req.session.userId;
-  currentUserLevel = req.session.userLevel;
-  const levelsCount = await cardLevels();
+  const currentUser = req.session.userId;
+  const currentUserLevel = req.session.userLevel;
+  const levelsCount = await cardLevels(currentUser);
 
   res.json({ levelsCount, currentUserLevel });
 })
