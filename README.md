@@ -22,12 +22,12 @@ The aim of this project was to create a flashcard website that utilised a Spaced
 
 <table>
   <tr>
-    <td><img src="loginPage.png" alt="Login Page" width="500"></td>
-    <td><img src="homePage.png" alt="Home Page" width="500"></td>
+    <td><img src="images/loginPage.png" alt="Login Page" width="500"></td>
+    <td><img src="images/homePage.png" alt="Home Page" width="500"></td>
   </tr>
   <tr>
-    <td><img src="revisionMeaning.png" alt="Revision Meaning" width="500"></td>
-    <td><img src="revisionReading.png" alt="Revision Reading" width="500"></td>
+    <td><img src="images/revisionMeaning.png" alt="Revision Meaning" width="500"></td>
+    <td><img src="images/revisionReading.png" alt="Revision Reading" width="500"></td>
   </tr>
 </table>
 
