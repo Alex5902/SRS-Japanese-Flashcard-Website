@@ -596,8 +596,15 @@ app.post("/login", async (req, res) => {
       req.session.userId = userCheck.rows[0].user_id;
       req.session.userLevel = userCheck.rows[0].current_level;
       req.session.username = username;
-      console.log("Session data:", req.session);
-      res.status(200).json({ message: "Login successful" });
+      req.session.save((err) => {
+        if (err) {
+            console.error("Session save error:", err);
+            return res.status(500).json({ message: "Server error" });
+        }
+        console.log("Session data:", req.session);
+        res.status(200).json({ message: "Login successful" });
+    });
+      // res.status(200).json({ message: "Login successful" });
     } else {
       return res.status(400).json({ message: "Invalid credentials" });
     }
