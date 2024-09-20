@@ -7,6 +7,8 @@ import bcrypt from "bcrypt";
 import session from "express-session";
 import { DateTime } from "luxon";
 import dotenv from "dotenv";
+import Redis from "ioredis";
+import connectRedis from "connect-redis";
 
 dotenv.config();
 
@@ -42,6 +44,25 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   cookie: { secure: true } 
+}));
+
+// Redis Setup
+const RedisStore = connectRedis(session);
+const redisClient = new Redis({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    // password: process.env.REDIS_PASSWORD,
+});
+
+// Configure session to use Redis store
+app.use(session({
+  store: new RedisStore({ client: redisClient }), 
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false, 
+  cookie: {
+      secure: process.env.NODE_ENV === 'production', 
+  }
 }));
 
 app.get("/api/isLoggedIn", (req, res) => {
