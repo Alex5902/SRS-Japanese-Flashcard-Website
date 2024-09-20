@@ -51,8 +51,8 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'none',
-    httpOnly: true,
+    sameSite: 'lax',
+    httpOnly: false,
   }
 }));
 
@@ -78,6 +78,12 @@ redisClient.set(testKey, 'Hello, Redis!')
     .catch((error) => {
         console.error('Error during Redis test:', error);
     });
+
+app.get('/test-cookie', (req, res) => {
+    res.cookie('test-cookie', 'test-value', { maxAge: 1000 * 60 * 60 * 24 });
+    res.send('Cookie set');
+});
+
 
 app.get("/api/isLoggedIn", (req, res) => {
   console.log("Session data apilogin:", req.session);
