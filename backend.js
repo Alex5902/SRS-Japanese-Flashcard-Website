@@ -51,7 +51,8 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: process.env.NODE_ENV === 'production',
+    sameSite: true,
+    httpOnly: true,
   }
 }));
 
@@ -483,7 +484,10 @@ async function cardLevels(currentUser) {
 }
 
 app.get('/levels', async (req, res) => {
-  console.log("Session ID in /levels:", req.sessionID);
+  const sessionId = `sess:${req.sessionID}`;
+  const sessionData = await redisClient.get(sessionId);
+  console.log("Session data from Redis in /levels:", sessionData);
+
   console.log("Session data levels:", req.session);
   const currentUser = req.session.userId;
   const currentUserLevel = req.session.userLevel;
