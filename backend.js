@@ -84,12 +84,12 @@ app.get("/api/isLoggedIn", (req, res) => {
   }
 });
 
-let currentUser = null;
-let currentUserLevel = null;
-let userTimeZone = null;
+// let currentUser = null;
+// let currentUserLevel = null;
+// let userTimeZone = null;
 
 // Retrieve cards that are due for review
-async function cardsForReview() {
+async function cardsForReview(currentUser, userTimeZone) {
 
   const currentDate = DateTime.now().setZone(userTimeZone);
   const currentDateUTC = currentDate.toUTC().toISO();
@@ -111,10 +111,10 @@ async function cardsForReview() {
 
 app.get("/numberOfReviewCards", async (req, res) => {
   try {
-    currentUser = req.session.userId;
-    currentUserLevel = req.session.userLevel;
-    userTimeZone = req.session.userTimeZone;
-    let result = await cardsForReview();
+    const currentUser = req.session.userId;
+    const currentUserLevel = req.session.userLevel;
+    const userTimeZone = req.session.userTimeZone;
+    let result = await cardsForReview(currentUser, userTimeZone);
     const numberOfCards = result.rows.length;
     // console.log(numberOfCards);
 
@@ -127,12 +127,13 @@ app.get("/numberOfReviewCards", async (req, res) => {
 
 app.get("/numberOfNewCards", async (req, res) => {
   try {
-    currentUser = req.session.userId;
-    currentUserLevel = req.session.userLevel;
+    console.log(`numberofnewcards session ${req.session}`);
+    const currentUser = req.session.userId;
+    const currentUserLevel = req.session.userLevel;
 
     console.log(`currentuser: ${currentUser}`);
     console.log(`currentuserlevel: ${currentUserLevel}`);
-    let result = await checkCards();
+    let result = await checkCards(currentUser, currentUserLevel);
     const numberOfCards = result && result.rows ? result.rows.length : 0;
 
     res.json({ numberOfCards });
@@ -149,7 +150,7 @@ let kanjiNow = false;
 let vocabNow = false;
 
 // check if new kanji or vocab cards need to be retrieved for learning
-async function checkCards () {
+async function checkCards (currentUser, currentUserLevel) {
   let result = null;
 
   // const completedKanji = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'kanji' AND levels > 3`, [currentUserLevel]);
@@ -187,13 +188,13 @@ async function checkCards () {
     `, [currentUserLevel, currentUser]);
   }
   // 3 cases, 1) first kanji batch, 2) move to vocab after mastering kanji, 3) move to kanji after mastering vocab
-  (!kanjiCompleted && currentUserLevel == 1) || (goToVocab.rows.length == totalKanji.rows.length) || (goToKanji.rows.length == totalVocab.rows.length) ? result = await newCards() : null;
+  (!kanjiCompleted && currentUserLevel == 1) || (goToVocab.rows.length == totalKanji.rows.length) || (goToKanji.rows.length == totalVocab.rows.length) ? result = await newCards(currentUser, currentUserLevel) : null;
 
   return result;
 }
 
 // fetch the new cards to learn
-async function newCards () {
+async function newCards (currentUser, currentUserLevel) {
     let result = null;
 
     if (!kanjiCompleted) {
