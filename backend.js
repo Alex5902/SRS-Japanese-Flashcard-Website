@@ -50,7 +50,8 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     maxAge: 1000 * 60 * 60 * 24,
-    secure: process.env.NODE_ENV === 'production' && req.protocol === 'https',
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production',
   }
 }));
 
