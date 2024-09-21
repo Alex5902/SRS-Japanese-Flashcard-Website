@@ -28,9 +28,6 @@ const db = new pg.Client({
 
 db.connect();
 
-app.use(express.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -49,12 +46,15 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 1000 * 60 * 60 * 24,
+    name: 'sessionId',
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     httpOnly: true,
   }
 }));
+
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 redisClient.ping()
     .then((result) => {
