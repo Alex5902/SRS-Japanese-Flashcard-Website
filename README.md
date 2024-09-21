@@ -2,7 +2,7 @@
 ***Note**: The project is fully functional locally, but there are issues with cookies not being sent properly when deployed on Render. I am actively working on a solution to this problem.*
 
 ## Project Aim
-The aim of this project was to create a flashcard website that utilised a Spaced Repition System (SRS) to allow me users to learn the kanji required for the JLPT N2 exam (Advanced Japanese Proficiency Exam). This projects was inspired by the Japanese flashcard website, *wanikani*. However, the main difference between my project and *wanikani* is its focus, my project priotises the user learning **only** the kanji required for the exam.
+The aim of this project was to create a flashcard website that utilised a Spaced Repition System (SRS) to allow users to learn the kanji required for the JLPT N2 exam (Advanced Japanese Proficiency Exam). This projects was inspired by the Japanese flashcard website, *wanikani*. However, the main difference between my project and *wanikani* is its focus, my project priotises the user learning **only** the kanji required for the exam.
 
 ## Technologies Used
 - **Frontend**: HTML, CSS, JavaScript
