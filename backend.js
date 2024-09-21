@@ -87,10 +87,7 @@ async function printAllKeys() {
     console.log("All Redis keys:", keys);
   } catch (error) {
     console.error("Error fetching keys:", error);
-  } finally {
-    // Close the connection to Redis
-    redisClient.quit(); 
-  }
+  } 
 }
 
 app.get("/api/isLoggedIn", (req, res) => {
