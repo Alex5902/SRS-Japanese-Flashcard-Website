@@ -44,7 +44,7 @@ const redisClient = new Redis(process.env.REDIS_URL);
 
 // Configure session to use Redis store
 app.use(session({
-  store: new RedisStore({ client: redisClient, ttl: 86400 }),
+  store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
@@ -52,7 +52,7 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    httpOnly: false,
+    httpOnly: true,
   }
 }));
 
@@ -78,12 +78,6 @@ redisClient.set(testKey, 'Hello, Redis!')
     .catch((error) => {
         console.error('Error during Redis test:', error);
     });
-
-app.get('/test-cookie', (req, res) => {
-    res.cookie('test-cookie', 'test-value', { maxAge: 1000 * 60 * 60 * 24 });
-    res.send('Cookie set');
-});
-
 
 app.get("/api/isLoggedIn", (req, res) => {
   console.log("Session data apilogin:", req.session);
@@ -634,6 +628,9 @@ app.post("/login", async (req, res) => {
         } catch (redisError) {
           console.error("Error querying Redis:", redisError);
         }
+        res.cookie('sessionId', req.sessionID);
+        console.log("Set-Cookie:", res.get('Set-Cookie'));
+
         res.status(200).json({ message: "Login successful" });
     });
       // res.status(200).json({ message: "Login successful" });
