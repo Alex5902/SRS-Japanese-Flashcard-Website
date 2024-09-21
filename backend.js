@@ -41,12 +41,13 @@ const redisClient = new Redis(process.env.REDIS_URL);
 
 // Configure session to use Redis store
 app.use(session({
-  store: new RedisStore({ client: redisClient }),
+  store: new RedisStore({ client: redisClient, ttl: 86400 }),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     name: 'sessionId',
+    maxAge: 1000 * 60 * 60 * 24,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     httpOnly: true,
@@ -628,8 +629,8 @@ app.post("/login", async (req, res) => {
         } catch (redisError) {
           console.error("Error querying Redis:", redisError);
         }
-        res.cookie('sessionId', req.sessionID);
-        console.log("Set-Cookie:", res.get('Set-Cookie'));
+        // res.cookie('sessionId', req.sessionID);
+        // console.log("Set-Cookie:", res.get('Set-Cookie'));
 
         res.status(200).json({ message: "Login successful" });
     });
