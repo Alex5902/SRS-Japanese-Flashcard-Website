@@ -80,6 +80,19 @@ redisClient.set(testKey, 'Hello, Redis!')
         console.error('Error during Redis test:', error);
     });
 
+async function printAllKeys() {
+  try {
+    // Use the keys command to fetch all keys
+    const keys = await redisClient.keys('*'); 
+    console.log("All Redis keys:", keys);
+  } catch (error) {
+    console.error("Error fetching keys:", error);
+  } finally {
+    // Close the connection to Redis
+    redisClient.quit(); 
+  }
+}
+
 app.get("/api/isLoggedIn", (req, res) => {
   console.log("Session data apilogin:", req.session);
   if (req.session.userId) {
@@ -485,6 +498,7 @@ async function cardLevels(currentUser) {
 }
 
 app.get('/levels', async (req, res) => {
+  printAllKeys()
   const sessionId = `sess:${req.sessionID}`;
   const sessionData = await redisClient.get(sessionId);
   console.log("Session data from Redis in /levels:", sessionData);
@@ -631,7 +645,7 @@ app.post("/login", async (req, res) => {
         }
         // res.cookie('sessionId', req.sessionID);
         // console.log("Set-Cookie:", res.get('Set-Cookie'));
-
+        printAllKeys()
         res.status(200).json({ message: "Login successful" });
     });
       // res.status(200).json({ message: "Login successful" });
