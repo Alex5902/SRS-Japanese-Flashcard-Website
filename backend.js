@@ -40,6 +40,8 @@ app.get("/", (req, res) => {
 console.log('Connecting to Redis at:', process.env.REDIS_URL);
 const redisClient = new Redis(process.env.REDIS_URL);
 
+app.set('trust proxy', 1); // Trust the first proxy (Render's reverse proxy)
+
 // Configure session to use Redis store
 app.use(session({
   store: new RedisStore({ client: redisClient}),
