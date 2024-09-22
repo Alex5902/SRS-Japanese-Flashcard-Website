@@ -21,9 +21,10 @@ const db = new pg.Client({
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
-    ssl: {
-      rejectUnauthorized: false
-  }
+  //   ssl: {
+  //     rejectUnauthorized: false
+  // }
+    ssl: false,
 });
 
 db.connect();
@@ -41,13 +42,13 @@ const redisClient = new Redis(process.env.REDIS_URL);
 
 // Configure session to use Redis store
 app.use(session({
-  store: new RedisStore({ client: redisClient, ttl: 86400 }),
+  store: new RedisStore({ client: redisClient}),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     name: 'sessionId',
-    maxAge: 1000 * 60 * 60 * 24,
+    // maxAge: 1000 * 60 * 60 * 24,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     httpOnly: true,
@@ -101,12 +102,14 @@ app.get("/api/isLoggedIn", (req, res) => {
 
 // let currentUser = null;
 // let currentUserLevel = null;
-// let userTimeZone = null;
+let userTimeZone = null;
 
 // Retrieve cards that are due for review
 async function cardsForReview(currentUser, userTimeZone) {
-
-  const currentDate = DateTime.now().setZone(userTimeZone);
+  let currentDate = DateTime.now().setZone(userTimeZone);
+  if (currentDate.minute !== 0 || currentDate.second !== 0 || currentDate.millisecond !== 0) {
+    currentDate = currentDate.plus({ hours: 1 }).startOf('hour');
+  }
   const currentDateUTC = currentDate.toUTC().toISO();
 
   const result = await db.query(`
@@ -123,6 +126,7 @@ async function cardsForReview(currentUser, userTimeZone) {
 
   return result;
 }
+
 
 app.get("/numberOfReviewCards", async (req, res) => {
   try {
@@ -258,12 +262,12 @@ let question = "reading";
 // retrieve new flashcard to learn
 app.get("/newFlashcard", async (req, res) => {
   try {
-    currentUser = req.session.userId;
-    currentUserLevel = req.session.userLevel;
+    const currentUser = req.session.userId;
+    const currentUserLevel = req.session.userLevel;
     kanjiCompleted = req.session.kanjiCompleted || false;
     vocabCompleted = req.session.vocabCompleted || false;
 
-    let result = await checkCards();
+    let result = await checkCards(currentUser, currentUserLevel);
     req.session.kanjiCompleted = kanjiCompleted;
     req.session.vocabCompleted = vocabCompleted;
     req.session.userLevel = currentUserLevel;
@@ -309,12 +313,12 @@ app.get("/newFlashcard", async (req, res) => {
 
 app.get('/flashcard', async (req, res) => {
     try {
-      currentUser = req.session.userId;
-      currentUserLevel = req.session.userLevel;
+      const currentUser = req.session.userId;
+
       const options = ['meaning', 'reading'];
       const randomNumber = Math.floor(Math.random()*2);
       const question = options[randomNumber];
-      let result = await cardsForReview();
+      let result = await cardsForReview(currentUser, userTimeZone);
 
       // const flashcard = result.rows[0];
       const flashcard = result.rows;
@@ -352,7 +356,7 @@ app.get('/flashcard', async (req, res) => {
 
 // let isCorrect = null;
 
-async function nextView(correct, flashcard) {
+async function nextView(correct, flashcard, currentUser, currentUserLevel) {
     let level = isNaN(flashcard.levels) ? 0 : flashcard.levels;
     const id = flashcard.id;
     // let currentDate = new Date();
@@ -371,7 +375,7 @@ async function nextView(correct, flashcard) {
     }
 
     if (level == 1) {
-        hoursToAdd = 4; //4
+        hoursToAdd = 1; //4
     } else if (level == 2) {
         hoursToAdd = 8; //8
     } else if (level == 3) {
@@ -426,6 +430,9 @@ async function nextView(correct, flashcard) {
 
 app.post('/answer', async (req, res) => {
     try {
+      const currentUser = req.session.userId;
+      const currentUserLevel = req.session.userLevel;
+  
       let isCorrect = null;
       const { answer, flashcard, question } = req.body;
 
@@ -455,7 +462,7 @@ app.post('/answer', async (req, res) => {
       } else {
         isCorrect = false;
 
-        nextView(isCorrect, flashcard);
+        nextView(isCorrect, flashcard, currentUser, currentUserLevel);
 
         // req.session.userLevel = currentUserLevel;
 
@@ -470,7 +477,7 @@ app.post('/answer', async (req, res) => {
           AND user_id = $2;
     `, [id, currentUser]);
 
-      result.rows.length == 1 ? nextView(isCorrect, flashcard) : console.log(false);
+      result.rows.length == 1 ? nextView(isCorrect, flashcard, currentUser, currentUserLevel) : console.log(false);
 
     } catch (error) {
       console.error('Error handling the answer:', error);
