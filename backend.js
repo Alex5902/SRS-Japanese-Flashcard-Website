@@ -59,41 +59,7 @@ app.use(session({
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-redisClient.ping()
-    .then((result) => {
-        console.log('Redis is connected:', result);
-    })
-    .catch((error) => {
-        console.error('Redis connection error:', error);
-    });
-
-// Test setting and getting a value to check persistence
-const testKey = 'test_key';
-redisClient.set(testKey, 'Hello, Redis!')
-    .then(() => {
-        return redisClient.get(testKey);
-    })
-    .then((value) => {
-        console.log('Value from Redis:', value);
-        // Clean up after test
-        redisClient.del(testKey);
-    })
-    .catch((error) => {
-        console.error('Error during Redis test:', error);
-    });
-
-async function printAllKeys() {
-  try {
-    // Use the keys command to fetch all keys
-    const keys = await redisClient.keys('*'); 
-    console.log("All Redis keys:", keys);
-  } catch (error) {
-    console.error("Error fetching keys:", error);
-  } 
-}
-
 app.get("/api/isLoggedIn", (req, res) => {
-  console.log("Session data apilogin:", req.session);
   if (req.session.userId) {
       res.json({ isLoggedIn: true, username: req.session.username });
   } else {
@@ -101,8 +67,6 @@ app.get("/api/isLoggedIn", (req, res) => {
   }
 });
 
-// let currentUser = null;
-// let currentUserLevel = null;
 let userTimeZone = null;
 
 // Retrieve cards that are due for review
@@ -128,10 +92,9 @@ async function cardsForReview(currentUser, userTimeZone) {
   return result;
 }
 
-
+// returns number of cards that are for review
 app.get("/numberOfReviewCards", async (req, res) => {
   try {
-    console.log("Session data numberofreviewcards:", req.session);
     const currentUser = req.session.userId;
     const currentUserLevel = req.session.userLevel;
     const userTimeZone = req.session.userTimeZone;
@@ -146,6 +109,7 @@ app.get("/numberOfReviewCards", async (req, res) => {
   }
 })
 
+// returns number of new cards to be learnt
 app.get("/numberOfNewCards", async (req, res) => {
   try {
     console.log("Session data numberofnewcards:", req.session);
@@ -164,7 +128,6 @@ app.get("/numberOfNewCards", async (req, res) => {
   }
 })
 
-// let currentLevel = 1;
 let kanjiCompleted = false;
 let vocabCompleted = false;
 let kanjiNow = false;
@@ -173,12 +136,6 @@ let vocabNow = false;
 // check if new kanji or vocab cards need to be retrieved for learning
 async function checkCards (currentUser, currentUserLevel) {
   let result = null;
-
-  // const completedKanji = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'kanji' AND levels > 3`, [currentUserLevel]);
-  // const totalKanji = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'kanji'`, [currentUserLevel]);
-
-  // const completedVocab = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'vocab' AND levels > 3`, [currentUserLevel]);
-  // const totalVocab = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'vocab'`, [currentUserLevel]);
 
   const completedKanji = await db.query(`SELECT * FROM progress WHERE japanese_level = $1 AND user_id = $2 AND type = 'kanji' AND levels > 0`, [currentUserLevel, currentUser]);
   const totalKanji = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'kanji'`, [currentUserLevel]);
@@ -208,7 +165,7 @@ async function checkCards (currentUser, currentUserLevel) {
       WHERE user_id = $2;
     `, [currentUserLevel, currentUser]);
   }
-  // 3 cases, 1) first kanji batch, 2) move to vocab after mastering kanji, 3) move to kanji after mastering vocab
+  // 3 cases to access new cards, 1) first kanji batch, 2) move to vocab after mastering kanji, 3) move to kanji after mastering vocab
   (!kanjiCompleted && currentUserLevel == 1) || (goToVocab.rows.length == totalKanji.rows.length) || (goToKanji.rows.length == totalVocab.rows.length) ? result = await newCards(currentUser, currentUserLevel) : null;
 
   return result;
@@ -238,7 +195,7 @@ async function newCards (currentUser, currentUserLevel) {
       
     }
     if (kanjiCompleted && !vocabCompleted) {
-      // result = await db.query(`SELECT * FROM n2kanji WHERE japanese_level = $1 AND type = 'vocab' AND levels = 0 ORDER BY id ASC`, [currentUserLevel]);
+
       result = await db.query(`
         SELECT * 
         FROM n2kanji 
@@ -259,7 +216,9 @@ async function newCards (currentUser, currentUserLevel) {
     
     return result;
 }
+
 let question = "reading";
+
 // retrieve new flashcard to learn
 app.get("/newFlashcard", async (req, res) => {
   try {
@@ -274,7 +233,6 @@ app.get("/newFlashcard", async (req, res) => {
     req.session.userLevel = currentUserLevel;
 
     const options = ['meaning', 'reading'];
-    const randomNumber = Math.floor(Math.random()*2);
     
     let kanjiCount = 0;
     let vocabCount = 0;
@@ -312,6 +270,7 @@ app.get("/newFlashcard", async (req, res) => {
   }
  });
 
+// retrieve revision flashcard
 app.get('/flashcard', async (req, res) => {
     try {
       const currentUser = req.session.userId;
@@ -321,7 +280,6 @@ app.get('/flashcard', async (req, res) => {
       const question = options[randomNumber];
       let result = await cardsForReview(currentUser, userTimeZone);
 
-      // const flashcard = result.rows[0];
       const flashcard = result.rows;
 
       let kanjiCount = 0;
@@ -343,8 +301,6 @@ app.get('/flashcard', async (req, res) => {
           WHERE user_id = $1;
           `, [currentUser]);
         res.json({ flashcard, question, kanjiCount, vocabCount });
-        // window.location.href = "/home.html"; // move this code to the revision js file
-        // res.status(404).json({ message: 'No flashcards available for review' });
         return;
       }
 
@@ -355,13 +311,12 @@ app.get('/flashcard', async (req, res) => {
     }
   });
 
-// let isCorrect = null;
-
+// determine when to next view a flashcard
 async function nextView(correct, flashcard, currentUser, currentUserLevel) {
     let level = isNaN(flashcard.levels) ? 0 : flashcard.levels;
     const id = flashcard.id;
-    // let currentDate = new Date();
-    let currentDate = DateTime.now().setZone(userTimeZone); // Format as 'YYYY-MM-DD'
+
+    let currentDate = DateTime.now().setZone(userTimeZone); 
     let hoursToAdd = 0;
     let daysToAdd = 0;
     let monthsToAdd = 0;
@@ -376,11 +331,11 @@ async function nextView(correct, flashcard, currentUser, currentUserLevel) {
     }
 
     if (level == 1) {
-        hoursToAdd = 1; //4
+        hoursToAdd = 4; 
     } else if (level == 2) {
-        hoursToAdd = 8; //8
+        hoursToAdd = 8;
     } else if (level == 3) {
-        daysToAdd = 1; //daysToAdd = 1;
+        daysToAdd = 1;
     } else if (level == 4) {
         daysToAdd = 2;
     } else if (level == 5) {
@@ -393,22 +348,11 @@ async function nextView(correct, flashcard, currentUser, currentUserLevel) {
         monthsToAdd = 4;
     }
 
-    // currentDate.setHours(currentDate.getHours() + hoursToAdd);
-    // currentDate.setDate(currentDate.getDate() + daysToAdd);
-    // currentDate.setMonth(currentDate.getMonth() + monthsToAdd);
     currentDate = currentDate.plus({ hours: hoursToAdd });
     currentDate = currentDate.plus({ days: daysToAdd });
     currentDate = currentDate.plus({ months: monthsToAdd });
 
-    // let year = currentDate.getFullYear();
-    // let month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Ensure month is two digits
-    // let day = String(currentDate.getDate()).padStart(2, '0'); // Ensure day is two digits
-    // let hour = String(currentDate.getHours()).padStart(2, '0'); // Ensure hour is two digits
-
-    // const nextRead = `${year}-${month}-${day} ${hour}:00:00`;
     let nextReadUTC = currentDate.toUTC().toISO();
-
-    console.log(level);
 
     if (correct) {
       await db.query(`
@@ -429,6 +373,7 @@ async function nextView(correct, flashcard, currentUser, currentUserLevel) {
     }
 }
 
+// deal with user's input
 app.post('/answer', async (req, res) => {
     try {
       const currentUser = req.session.userId;
@@ -439,9 +384,6 @@ app.post('/answer', async (req, res) => {
 
       const realAnswer = flashcard[question];
       const id = flashcard.id;
-
-      console.log(`answer: ${answer}`);
-      console.log(`realAnswer: ${realAnswer}`);
   
       if (!flashcard) {
         return res.status(400).json({ message: 'No flashcard provided' });
@@ -465,8 +407,6 @@ app.post('/answer', async (req, res) => {
 
         nextView(isCorrect, flashcard, currentUser, currentUserLevel);
 
-        // req.session.userLevel = currentUserLevel;
-
         res.status(200).json({ message: 'Incorrect answer', answer: realAnswer });
       }
       const result = await db.query(`
@@ -486,6 +426,7 @@ app.post('/answer', async (req, res) => {
     }
   });
 
+// retrieve understanding levels for each flaschard for the user
 async function cardLevels(currentUser) {
   const resultNovice = await db.query(`SELECT * FROM progress WHERE levels IN (1, 2, 3, 4) AND user_id = $1`, [currentUser]);
   const resultFamiliar = await db.query(`SELECT * FROM progress WHERE levels IN (5, 6) AND user_id = $1`, [currentUser]);
@@ -502,13 +443,9 @@ async function cardLevels(currentUser) {
   };
 }
 
+// retrieve user level
 app.get('/levels', async (req, res) => {
-  printAllKeys()
-  const sessionId = `sess:${req.sessionID}`;
-  const sessionData = await redisClient.get(sessionId);
-  console.log("Session data from Redis in /levels:", sessionData);
 
-  console.log("Session data levels:", req.session);
   const currentUser = req.session.userId;
   const currentUserLevel = req.session.userLevel;
   const levelsCount = await cardLevels(currentUser);
@@ -516,21 +453,18 @@ app.get('/levels', async (req, res) => {
   res.json({ levelsCount, currentUserLevel });
 })
 
+// retrieve how many cards are for review today and before today
 app.get("/forReviewToday", async (req, res) => {
   try {
     const currentUser = req.session.userId;
     const userTimeZone = req.session.userTimeZone;
 
-    // Get the current date in the user's time zone
     const startOfToday = DateTime.now().setZone(userTimeZone).startOf('day');
     const endOfToday = DateTime.now().setZone(userTimeZone).endOf('day');
 
-    // Convert these to UTC for accurate comparisons with the database
     const startOfTodayUTC = startOfToday.toUTC().toISO();
     const endOfTodayUTC = endOfToday.toUTC().toISO();
 
-    // console.log(startOfTodayUTC);
-    // console.log(endOfTodayUTC);
 
     const reviewToday = await db.query(`
       SELECT DISTINCT* 
@@ -560,11 +494,10 @@ app.get("/forReviewToday", async (req, res) => {
   }
 });
 
+// user signup
 app.post("/signup", async (req, res) => {
   try {
     const { username, password } = req.body;
-    console.log(`password ${password}`);
-    console.log(`username ${username}`);
 
     const userCheck = await db.query(`SELECT * FROM users WHERE username = $1`, [username]);
 
@@ -589,13 +522,9 @@ app.post("/signup", async (req, res) => {
       WHERE username = $1
       `, [username]);
 
-    // currentUser = user.rows[0].user_id;
-    // currentUserLevel = 1;
-
     req.session.userId = user.rows[0].user_id;
     req.session.userLevel = 1;
     req.session.username = username;
-
 
     res.status(201).json({ message: 'valid'});
     
@@ -605,6 +534,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
+// user login
 app.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -617,43 +547,21 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    console.log(`username: ${username} password: ${password}`);
-    console.log(`user check: ${userCheck.rows[0].current_level}`);
-    console.log(`user check: ${userCheck.rows[0].username}`);
-
     const hashedPassword = userCheck.rows[0].hashed_password;
     const match = await bcrypt.compare(password, hashedPassword);
+
     if (match) {
       req.session.userId = userCheck.rows[0].user_id;
       req.session.userLevel = userCheck.rows[0].current_level;
       req.session.username = username;
+
       req.session.save(async (err) => {
         if (err) {
           console.error("Session save error:", err);
           return res.status(500).json({ message: "Server error" });
         }
-
-        console.log("Session data:", req.session);
-        const sessionId = `sess:${req.sessionID}`;
-        console.log("Session ID:", sessionId);
-
-        // Check Redis directly to see if the session data is stored
-        try {
-          const sessionData = await redisClient.get(sessionId);
-          if (sessionData) {
-            console.log("Session stored in Redis:", sessionData);
-          } else {
-            console.log("Session not found in Redis.");
-          }
-        } catch (redisError) {
-          console.error("Error querying Redis:", redisError);
-        }
-        // res.cookie('sessionId', req.sessionID);
-        // console.log("Set-Cookie:", res.get('Set-Cookie'));
-        printAllKeys()
         res.status(200).json({ message: "Login successful" });
     });
-      // res.status(200).json({ message: "Login successful" });
     } else {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -663,6 +571,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// get user's local time zone
 app.post("/setUserTimeZone", (req, res) => {
   const { timeZone } = req.body;
   if (timeZone) {
