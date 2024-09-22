@@ -1,5 +1,5 @@
 # SRS Japanese Flashcard Website
-***Note**: The project is fully functional locally, but there are issues with cookies not being sent properly when deployed on Render. I am actively working on a solution to this problem.*
+https://srs-japanese-flashcard-website.onrender.com
 
 ## Project Aim
 The aim of this project was to create a flashcard website that utilised a Spaced Repition System (SRS) to allow users to learn the kanji required for the JLPT N2 exam (Advanced Japanese Proficiency Exam). This projects was inspired by the Japanese flashcard website, *wanikani*. However, the main difference between my project and *wanikani* is its focus, my project priotises the user learning **only** the kanji required for the exam.
@@ -9,8 +9,8 @@ The aim of this project was to create a flashcard website that utilised a Spaced
 - **Backend**: Node.js, Express.js
 - **Database**: PostgreSQL (for storing flashcards, progress, and user data)
 - **Authentication**: Bcrypt for password hashing
-- **Session Storage**: Redis (currently troubleshooting issues on Render)
-- **Deployment**: Render (actively solving deployment issues)
+- **Session Storage**: Redis
+- **Deployment**: Render
 
 ## Key Features
 - **Spaced Repetition System (SRS)**: Optimises the review process by adjusting the interval between reviews based on previous answers.
@@ -32,5 +32,5 @@ The aim of this project was to create a flashcard website that utilised a Spaced
 </table>
 
 ## Challenges
-- **Deployment Issues**: Currently, the site faces issues with cookies not being sent properly when deployed on Render. This is under investigation, and I am actively researching solutions such as alternative cookie handling or session management methods.
+- **Deployment Issues**: At the start, the site faced issues with cookies not being sent properly when deployed on Render. After thorough investigation, it was discovered that Render used a reverse-proxy and Express was not trusting it and thus this was fixed.
 
